@@ -1,0 +1,79 @@
+# Business — Generative Engine Optimization Map
+
+---
+
+## Pages
+
+### בית
+https://example.com
+חנות יודאיקה בישראל עם מאות פריטים מיוחדים: מתנות בר מצווה ובת מצווה, מוצרי קודש ומתנות יהודיות ייחודיות. משלוחים לכל הארץ!
+
+### אודות
+https://example.com/about
+למעלה מעשור של ניסיון במכירת מוצרי יודאיקה איכוtiים. אנחנו מתמחים באספקת מתנות ופריטי קודש למשפחות ומוסדות חינוך ברחבי הארץ.
+
+### אוספים
+https://example.com/collections
+עיין במגוון אוספי היודאיקה שלנו: מתנות לבר מצווה, פריטי קודש לבית, מוצרים למוסדות חינוך ומתנות מיוחדות לכל חג ואירוע משמעותי.
+
+### צור קשר
+https://example.com/contact
+צריכים עזרה בבחירת מתנות בר מצווה או הזמנה למוסד חינוך? צוות המומחים שלנו כאן בשבילכם. צרו קשר עכשיו לשירות אישי ומקצועי!
+
+### Products
+https://example.com/products
+המוצרים שלנו - סנטר קודש
+
+### Cart
+https://example.com/cart
+עגלת הקניות שלך
+
+### Checkout
+https://example.com/checkout
+תשלום
+
+### Login
+https://example.com/login
+התחברות לקוחות
+
+### Account
+https://example.com/account
+החשבון שלי
+
+### Order Success
+https://example.com/order-success
+תודה על ההזמנה
+
+### Product Detail
+https://example.com/product/:slug
+פרטי המוצר - סנטר קודש
+
+### Category
+https://example.com/category/:slug
+מוצרים - סנטר קודש
+
+## Legal & Policy
+
+### Privacy Policy
+https://example.com/privacy
+Information about how user data is collected, stored, and protected.
+
+### Terms & Conditions
+https://example.com/terms
+Legal terms describing service usage, rights, and policies.
+
+### Accessibility Statement
+https://example.com/accessibility
+Information about WCAG compliance and accessibility features.
+
+---
+
+# Business Context (for LLM understanding)
+
+## About Business
+---
+
+# Additional Resources
+
+- **Sitemap**: https://example.com/sitemap.xml
+- **Robots.txt**: https://example.com/robots.txt
