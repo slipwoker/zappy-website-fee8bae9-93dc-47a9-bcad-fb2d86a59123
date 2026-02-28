@@ -138,6 +138,362 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 ;
+
+
+/* Cookie Consent */
+
+// Helper function to check cookie consent
+function hasConsentFor(category) {
+  if (typeof window.CookieConsent === 'undefined') {
+    return false; // Default to no consent if cookie consent not loaded
+  }
+  
+  return window.CookieConsent.validConsent(category);
+}
+
+// Helper function to execute code only with consent
+function withConsent(category, callback) {
+  if (hasConsentFor(category)) {
+    callback();
+  } else {
+    console.log(`[WARNING] Skipping ${category} code - no user consent`);
+  }
+}
+
+// Cookie Consent Initialization
+
+(function() {
+  'use strict';
+  
+  let initAttempts = 0;
+  const maxAttempts = 50; // 5 seconds max wait
+  
+  // Wait for DOM and vanilla-cookieconsent to be ready
+  function initCookieConsent() {
+    initAttempts++;
+    
+    
+    if (typeof window.CookieConsent === 'undefined') {
+      if (initAttempts < maxAttempts) {
+        setTimeout(initCookieConsent, 100);
+      } else {
+      }
+      return;
+    }
+
+    const cc = window.CookieConsent;
+    
+    
+    // Initialize cookie consent
+    try {
+      cc.run({
+  "autoShow": true,
+  "mode": "opt-in",
+  "revision": 0,
+  "categories": {
+    "necessary": {
+      "enabled": true,
+      "readOnly": true
+    },
+    "analytics": {
+      "enabled": false,
+      "readOnly": false,
+      "autoClear": {
+        "cookies": [
+          {
+            "name": "_ga"
+          },
+          {
+            "name": "_ga_*"
+          },
+          {
+            "name": "_gid"
+          },
+          {
+            "name": "_gat"
+          }
+        ]
+      }
+    },
+    "marketing": {
+      "enabled": false,
+      "readOnly": false,
+      "autoClear": {
+        "cookies": [
+          {
+            "name": "_fbp"
+          },
+          {
+            "name": "_fbc"
+          },
+          {
+            "name": "fr"
+          }
+        ]
+      }
+    }
+  },
+  "language": {
+    "default": "he",
+    "translations": {
+      "he": {
+        "consentModal": {
+          "title": "אנחנו משתמשים בעוגיות 🍪",
+          "description": "סנטר קודש משתמש בעוגיות כדי לשפר את החוויה שלך, לנתח שימוש באתר ולסייע במאמצי השיווק שלנו.",
+          "acceptAllBtn": "אשר הכל",
+          "acceptNecessaryBtn": "רק הכרחי",
+          "showPreferencesBtn": "נהל העדפות",
+          "footer": "<a href=\"#privacy-policy\">מדיניות פרטיות</a> | <a href=\"#terms-conditions\">תנאי שימוש</a>"
+        },
+        "preferencesModal": {
+          "title": "העדפות עוגיות",
+          "acceptAllBtn": "אשר הכל",
+          "acceptNecessaryBtn": "רק הכרחי",
+          "savePreferencesBtn": "שמור העדפות",
+          "closeIconLabel": "סגור",
+          "sections": [
+            {
+              "title": "עוגיות חיוניות",
+              "description": "עוגיות אלה הכרחיות לתפקוד האתר ולא ניתן להשבית אותן.",
+              "linkedCategory": "necessary"
+            },
+            {
+              "title": "עוגיות ניתוח",
+              "description": "עוגיות אלה עוזרות לנו להבין איך המבקרים מתקשרים עם האתר שלנו.",
+              "linkedCategory": "analytics"
+            },
+            {
+              "title": "עוגיות שיווקיות",
+              "description": "עוגיות אלה משמשות להצגת פרסומות מותאמות אישית.",
+              "linkedCategory": "marketing"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "guiOptions": {
+    "consentModal": {
+      "layout": "box",
+      "position": "bottom right",
+      "equalWeightButtons": true,
+      "flipButtons": false
+    },
+    "preferencesModal": {
+      "layout": "box",
+      "equalWeightButtons": true,
+      "flipButtons": false
+    }
+  }
+});
+      
+      // Google Consent Mode v2 integration
+      // Update consent state based on accepted cookie categories
+      function updateGoogleConsentMode() {
+        if (typeof gtag !== 'function') {
+          // Define gtag if not already defined (needed for consent updates)
+          window.dataLayer = window.dataLayer || [];
+          window.gtag = function(){dataLayer.push(arguments);};
+        }
+        
+        var analyticsAccepted = cc.acceptedCategory('analytics');
+        var marketingAccepted = cc.acceptedCategory('marketing');
+        
+        gtag('consent', 'update', {
+          'analytics_storage': analyticsAccepted ? 'granted' : 'denied',
+          'ad_storage': marketingAccepted ? 'granted' : 'denied',
+          'ad_user_data': marketingAccepted ? 'granted' : 'denied',
+          'ad_personalization': marketingAccepted ? 'granted' : 'denied'
+        });
+      }
+      
+      // Update consent on initial load (if user previously accepted)
+      updateGoogleConsentMode();
+      
+      // Handle consent changes via onChange callback
+      if (typeof cc.onChange === 'function') {
+        cc.onChange(function(cookie, changed_preferences) {
+          updateGoogleConsentMode();
+        });
+      }
+
+      // Note: Cookie Preferences button removed per marketing guidelines
+      // Footer should be clean and minimal - users can manage cookies via banner
+    } catch (error) {
+    }
+  }
+
+  // Initialize when DOM is ready - multiple approaches for reliability
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCookieConsent);
+    // Backup timeout in case DOMContentLoaded doesn't fire
+    setTimeout(initCookieConsent, 1000);
+  } else if (document.readyState === 'interactive' || document.readyState === 'complete') {
+    initCookieConsent();
+  } else {
+    // Fallback - try after a short delay
+    setTimeout(initCookieConsent, 500);
+  }
+  
+  // Additional fallback - try after page load
+  if (typeof window !== 'undefined') {
+    if (window.addEventListener) {
+      window.addEventListener('load', initCookieConsent, { once: true });
+    }
+  }
+})();
+
+/* Accessibility Features */
+
+/* Mickidum Accessibility Toolbar Initialization - Zappy Style */
+
+window.onload = function() {
+    
+    try {
+        window.micAccessTool = new MicAccessTool({
+            buttonPosition: 'left', // Position on left side
+            forceLang: 'he-IL', // Force language
+            icon: {
+                position: {
+                    bottom: { size: 50, units: 'px' },
+                    left: { size: 20, units: 'px' },
+                    type: 'fixed'
+                },
+                backgroundColor: 'transparent', // Transparent to allow CSS styling
+                color: 'transparent', // Let CSS handle coloring
+                img: 'accessible',
+                circular: false // Square button for consistent styling
+            },
+            menu: {
+                dimensions: {
+                    width: { size: 300, units: 'px' },
+                    height: { size: 'auto', units: 'px' }
+                }
+            }
+        });
+        
+    } catch (error) {
+    }
+    
+    // Keyboard shortcut handler: ALT+A (Option+A on Mac) to toggle accessibility widget visibility (desktop only)
+    document.addEventListener('keydown', function(event) {
+        // Check if ALT+A is pressed (ALT on Windows/Linux, Option on Mac)
+        var isAltOrOption = event.altKey;
+        // Use event.code for reliable physical key detection (works regardless of Option key character output)
+        var isAKey = event.code === 'KeyA' || event.keyCode === 65 || event.which === 65 || 
+                      (event.key && (event.key.toLowerCase() === 'a' || event.key === 'å' || event.key === 'Å'));
+        
+        if (isAltOrOption && isAKey) {
+            // Only work on desktop (screen width > 768px)
+            if (window.innerWidth > 768) {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                // Toggle visibility class on body
+                var isVisible = document.body.classList.contains('accessibility-widget-visible');
+                
+                if (isVisible) {
+                    // Hide the widget
+                    document.body.classList.remove('accessibility-widget-visible');
+                } else {
+                    // Show the widget
+                    document.body.classList.add('accessibility-widget-visible');
+                    
+                    // After a short delay, click the button to open the menu
+                    setTimeout(function() {
+                        var accessButton = document.getElementById('mic-access-tool-general-button');
+                        if (accessButton) {
+                            accessButton.click();
+                        }
+                    }, 200);
+                }
+            }
+        }
+    }, true);
+};
+
+
+// Zappy Contact Form API Integration (Fallback)
+(function() {
+    if (window.zappyContactFormLoaded) {
+        console.log('📧 Zappy contact form already loaded');
+        return;
+    }
+    window.zappyContactFormLoaded = true;
+
+    function initContactFormIntegration() {
+        console.log('📧 Zappy: Initializing contact form API integration...');
+
+        // Find the contact form (try multiple selectors for flexibility)
+        const contactForm = document.querySelector('.contact-form') || 
+                           document.querySelector('form[action*="contact"]') ||
+                           document.querySelector('form#contact') ||
+                           document.querySelector('form#contactForm') ||
+                           document.getElementById('contactForm') ||
+                           document.querySelector('section.contact form') ||
+                           document.querySelector('section#contact form') ||
+                           document.querySelector('form');
+        
+        if (!contactForm) {
+            console.log('⚠️ Zappy: No contact form found on page');
+            return;
+        }
+        
+        console.log('✅ Zappy: Contact form found:', contactForm.className || contactForm.id || 'unnamed form');
+
+        // Store original submit handler if exists
+        const originalOnSubmit = contactForm.onsubmit;
+
+    // Add Zappy API integration using capture phase to run before other handlers
+    contactForm.addEventListener('submit', async function(e) {
+        // Get form data
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData);
+
+        // Send to Zappy backend API (don't prevent default, let other handlers run)
+        try {
+            console.log('📧 Zappy: Sending contact form to backend API...');
+            const response = await fetch('https://api.zappy5.com/api/email/contact-form', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    websiteId: 'fee8bae9-93dc-47a9-bcad-fb2d86a59123',
+                    name: data.name || '',
+                    email: data.email || '',
+                    subject: data.subject || 'Contact Form Submission',
+                    message: data.message || '',
+                    phone: data.phone || null
+                })
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                console.log('✅ Zappy: Contact form data sent successfully to backend');
+            } else {
+                console.log('⚠️ Zappy: Backend returned error:', result.error);
+            }
+        } catch (error) {
+            console.error('❌ Zappy: Failed to send to backend API:', error);
+            // Don't break the existing form submission
+        }
+        }, true); // Use capture phase to run before other handlers
+
+        console.log('✅ Zappy: Contact form API integration initialized');
+    } // End of initContactFormIntegration
+    
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initContactFormIntegration);
+    } else {
+        // DOM is already ready, initialize immediately
+        initContactFormIntegration();
+    }
+})();
+
+;
 /* ==ZAPPY E-COMMERCE JS START== */
 // E-commerce functionality
 (function() {
@@ -564,14 +920,15 @@ function stripHtmlToText(html) {
       
       // Store all products for client-side filtering
       productsCache = data.data;
-      
+
       // Initialize toolbar, sidebar, sorting, and view toggle on first load
       if (!window._zappyToolbarInitialized) {
         window._zappyToolbarInitialized = true;
         initProductsToolbar('products-toolbar', 'product-sidebar', 'sort-select', 'sort-control', 'view-toggle', 'sidebar-toggle-btn', 'products-count');
       }
-      
+
       applyAllFiltersAndRender(grid);
+      if (typeof _syncCardFavorites === 'function') _syncCardFavorites();
     } catch (e) {
       console.error('Failed to load products', e);
       grid.innerHTML = '<div class="empty-cart">' + t.errorLoading + '</div>';
@@ -1024,6 +1381,8 @@ function stripHtmlToText(html) {
       var pricePerUnitHtml = getPricePerUnitHtml(p);
       var priceHtml = showPrice ? '<div class="price">' + displayPrice + '</div>' + pricePerUnitHtml : '';
       
+      var favBtnHtml = '<button class="card-favorite-btn" data-product-id="' + p.id + '" onclick="event.preventDefault(); event.stopPropagation(); toggleCardFavorite(this, \'' + p.id + '\')" title="שמור למועדפים"><svg class="heart-outline" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M14.7917 0.833C12.705 0.833 10.811 2.376 10 4.462C9.189 2.375 7.295 0.833 5.208 0.833C2.337 0.833 0 3.17 0 6.042C0 11.675 8.128 17.767 9.758 18.93L10 19.104L10.243 18.93C11.873 17.767 20 11.674 20 6.042C20 3.17 17.663 0.833 14.792 0.833ZM10 18.078C5.716 14.965 0.833 10.019 0.833 6.042C0.833 3.629 2.796 1.667 5.208 1.667C7.498 1.667 9.583 4.05 9.583 6.667H10.417C10.417 4.05 12.502 1.667 14.792 1.667C17.204 1.667 19.167 3.629 19.167 6.042C19.167 10.019 14.284 14.965 10 18.078Z" fill="currentColor"/></svg><svg class="heart-filled" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 20 20"><path d="M14.7917 0.833C12.705 0.833 10.811 2.376 10 4.462C9.189 2.375 7.295 0.833 5.208 0.833C2.337 0.833 0 3.17 0 6.042C0 11.675 8.128 17.767 9.758 18.93L10 19.104L10.243 18.93C11.873 17.767 20 11.674 20 6.042C20 3.17 17.663 0.833 14.792 0.833Z" fill="#e74c3c"/></svg></button>';
+
       if (productLayout === 'compact') {
         cardContent = tagsHtml +
           '<a href="/product/' + (p.slug || p.id) + '" class="product-card-link">' +
@@ -1032,7 +1391,8 @@ function stripHtmlToText(html) {
               '<h3>' + p.name + '</h3>' +
               priceHtml +
             '</div>' +
-          '</a>';
+          '</a>' +
+          favBtnHtml;
       } else if (productLayout === 'detailed') {
         var detailedDesc = stripHtmlToText(p.description || '');
         var actionButton = isCatalogMode
@@ -1047,7 +1407,8 @@ function stripHtmlToText(html) {
               priceHtml +
             '</div>' +
           '</a>' +
-          actionButton;
+          actionButton +
+          favBtnHtml;
       } else {
         var standardDesc = stripHtmlToText(p.description || '');
         cardContent = tagsHtml +
@@ -1058,7 +1419,8 @@ function stripHtmlToText(html) {
               '<p>' + standardDesc + '</p>' +
               priceHtml +
             '</div>' +
-          '</a>';
+          '</a>' +
+          favBtnHtml;
       }
       
       return '<div class="product-card ' + productLayout + '" data-product-id="' + p.id + '">' + cardContent + '</div>';
@@ -4474,6 +4836,8 @@ function renderProductGrid(grid, products, t, isFeaturedSection, viewMode) {
     var pricePerUnitHtml = getPricePerUnitHtml(p);
     var priceHtml = showPrice ? '<div class="price">' + displayPrice + '</div>' + pricePerUnitHtml : '';
     
+    var favBtnHtml = '<button class="card-favorite-btn" data-product-id="' + p.id + '" onclick="event.preventDefault(); event.stopPropagation(); toggleCardFavorite(this, \'' + p.id + '\')" title="שמור למועדפים"><svg class="heart-outline" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M14.7917 0.833C12.705 0.833 10.811 2.376 10 4.462C9.189 2.375 7.295 0.833 5.208 0.833C2.337 0.833 0 3.17 0 6.042C0 11.675 8.128 17.767 9.758 18.93L10 19.104L10.243 18.93C11.873 17.767 20 11.674 20 6.042C20 3.17 17.663 0.833 14.792 0.833ZM10 18.078C5.716 14.965 0.833 10.019 0.833 6.042C0.833 3.629 2.796 1.667 5.208 1.667C7.498 1.667 9.583 4.05 9.583 6.667H10.417C10.417 4.05 12.502 1.667 14.792 1.667C17.204 1.667 19.167 3.629 19.167 6.042C19.167 10.019 14.284 14.965 10 18.078Z" fill="currentColor"/></svg><svg class="heart-filled" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 20 20"><path d="M14.7917 0.833C12.705 0.833 10.811 2.376 10 4.462C9.189 2.375 7.295 0.833 5.208 0.833C2.337 0.833 0 3.17 0 6.042C0 11.675 8.128 17.767 9.758 18.93L10 19.104L10.243 18.93C11.873 17.767 20 11.674 20 6.042C20 3.17 17.663 0.833 14.792 0.833Z" fill="#e74c3c"/></svg></button>';
+
     if (layout === 'compact') {
       cardContent = tagsHtml +
         '<a href="/product/' + (p.slug || p.id) + '" class="product-card-link">' +
@@ -4482,7 +4846,8 @@ function renderProductGrid(grid, products, t, isFeaturedSection, viewMode) {
             '<h3>' + p.name + '</h3>' +
             priceHtml +
           '</div>' +
-        '</a>';
+        '</a>' +
+        favBtnHtml;
     } else if (layout === 'detailed') {
       var detailedDesc = stripHtmlToText(p.description || '');
       var actionButton = isCatalogMode
@@ -4497,7 +4862,8 @@ function renderProductGrid(grid, products, t, isFeaturedSection, viewMode) {
             priceHtml +
           '</div>' +
         '</a>' +
-        actionButton;
+        actionButton +
+        favBtnHtml;
     } else {
       var standardDesc = stripHtmlToText(p.description || '');
       cardContent = tagsHtml +
@@ -4508,39 +4874,85 @@ function renderProductGrid(grid, products, t, isFeaturedSection, viewMode) {
             '<p>' + standardDesc + '</p>' +
             priceHtml +
           '</div>' +
-        '</a>';
+        '</a>' +
+        favBtnHtml;
     }
     
     return '<div class="product-card ' + layout + '" data-product-id="' + p.id + '">' + cardContent + '</div>';
   }).join('');
 }
 
-// Load categories into catalog dropdown
+// Load categories into catalog dropdown, respecting parent/child hierarchy
 async function loadCatalogCategories() {
     const list = document.getElementById('zappy-category-links');
     const navList = document.getElementById('zappy-nav-category-links');
     if (!list && !navList) return;
-  const websiteId = window.ZAPPY_WEBSITE_ID;
+  var websiteId = window.ZAPPY_WEBSITE_ID;
   if (!websiteId) return;
   
   try {
-    const res = await fetch(buildApiUrlWithLang('/api/ecommerce/storefront/categories?websiteId=' + websiteId));
-    const data = await res.json();
+    var res = await fetch(buildApiUrlWithLang('/api/ecommerce/storefront/categories?websiteId=' + websiteId));
+    var data = await res.json();
     if (!data.success || !data.data?.length) return;
-    
-    // Use SEO-friendly slug URLs for categories, fallback to id for backward compatibility
-    const dropdownItemsHtml = data.data.map(cat => {
-      const categoryUrl = '/category/' + (cat.slug || cat.id);
-      return '<li data-category-id="' + cat.id + '" data-category-slug="' + (cat.slug || '') + '"><a href="' + categoryUrl + '">' + cat.name + '</a></li>';
+
+    var allCats = data.data;
+    var childrenMap = {};
+    var topLevel = [];
+    allCats.forEach(function(cat) {
+      if (cat.parent_id) {
+        if (!childrenMap[cat.parent_id]) childrenMap[cat.parent_id] = [];
+        childrenMap[cat.parent_id].push(cat);
+      } else {
+        topLevel.push(cat);
+      }
+    });
+
+    // Flatten descendants so grandchildren+ appear under their top-level ancestor
+    function collectDescendants(parentId) {
+      var result = [];
+      var direct = childrenMap[parentId] || [];
+      direct.forEach(function(child) {
+        result.push(child);
+        result = result.concat(collectDescendants(child.id));
+      });
+      return result;
+    }
+    topLevel.forEach(function(cat) {
+      childrenMap[cat.id] = collectDescendants(cat.id);
+    });
+
+    function catUrl(cat) { return '/category/' + (cat.slug || cat.id); }
+    var chevronSvg = '<svg class="catalog-menu-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+
+    // Build HTML for the main nav dropdown (flat list with parent/child classes)
+    var dropdownItemsHtml = topLevel.map(function(cat) {
+      var children = childrenMap[cat.id] || [];
+      if (children.length === 0) {
+        return '<li data-category-id="' + cat.id + '" data-category-slug="' + (cat.slug || '') + '"><a href="' + catUrl(cat) + '">' + cat.name + '</a></li>';
+      }
+      var items = '<li class="zappy-nav-parent" data-category-id="' + cat.id + '" data-category-slug="' + (cat.slug || '') + '"><a href="' + catUrl(cat) + '">' + cat.name + '</a></li>';
+      children.forEach(function(child) {
+        items += '<li class="zappy-nav-child" data-category-id="' + child.id + '" data-category-slug="' + (child.slug || '') + '"><a href="' + catUrl(child) + '">' + child.name + '</a></li>';
+      });
+      return items;
     }).join('');
 
-    const barItemsHtml = data.data.map(cat => {
-      const categoryUrl = '/category/' + (cat.slug || cat.id);
-      return '<a href="' + categoryUrl + '" class="catalog-menu-item" data-category-id="' + cat.id + '" data-category-slug="' + (cat.slug || '') + '">' + cat.name + '</a>';
+    // Build HTML for the secondary catalog bar (flat links / dropdowns)
+    var barItemsHtml = topLevel.map(function(cat) {
+      var children = childrenMap[cat.id] || [];
+      if (children.length === 0) {
+        return '<a href="' + catUrl(cat) + '" class="catalog-menu-item" data-category-id="' + cat.id + '" data-category-slug="' + (cat.slug || '') + '">' + cat.name + '</a>';
+      }
+      var subLinks = children.map(function(child) {
+        return '<a href="' + catUrl(child) + '" class="catalog-menu-item" data-category-id="' + child.id + '" data-category-slug="' + (child.slug || '') + '">' + child.name + '</a>';
+      }).join('');
+      return '<div class="catalog-menu-parent" data-category-id="' + cat.id + '" data-category-slug="' + (cat.slug || '') + '">' +
+        '<a href="' + catUrl(cat) + '" class="catalog-menu-item catalog-menu-trigger">' + cat.name + ' ' + chevronSvg + '</a>' +
+        '<div class="sub-menu">' + subLinks + '</div>' +
+      '</div>';
     }).join('');
 
     if (navList) {
-      // Remove any previously injected category items
       navList.querySelectorAll('li[data-category-id]').forEach(function(node) { node.remove(); });
       navList.insertAdjacentHTML('beforeend', dropdownItemsHtml);
     }
@@ -4588,12 +5000,56 @@ function handleSubNavbarVisibility() {
   }
 }
 
+// Transparent navbar scroll effect — frosted glass on scroll
+// Activates only when --nav-bg is 'transparent' (set by navbar customization)
+function initTransparentNavbarScrollEffect() {
+  var nb = document.querySelector('nav.navbar, .navbar:not(.zappy-catalog-menu)');
+  if (!nb) return;
+  var cs = getComputedStyle(nb);
+  var bgc = cs.backgroundColor;
+  // Check if navbar background is transparent (rgba(0,0,0,0) or 'transparent')
+  var isTransparent = bgc === 'transparent' || bgc === 'rgba(0, 0, 0, 0)';
+  if (!isTransparent) return;
+
+  var cm = document.querySelector('.zappy-catalog-menu');
+  // Determine frosted glass color from the page background
+  var bodyBg = getComputedStyle(document.body).backgroundColor || 'rgb(0,0,0)';
+  var m = bodyBg.match(/\d+/g);
+  var frostedBg = m && m.length >= 3 ? 'rgba(' + m[0] + ',' + m[1] + ',' + m[2] + ',0.85)' : 'rgba(0,0,0,0.85)';
+  var threshold = 60;
+
+  nb.style.transition = 'background 0.3s ease, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease, box-shadow 0.3s ease';
+  if (cm) cm.style.transition = 'background 0.3s ease, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease';
+
+  function onScroll() {
+    var y = window.scrollY || window.pageYOffset;
+    if (y > threshold) {
+      nb.style.background = frostedBg;
+      nb.style.backdropFilter = 'blur(12px)';
+      nb.style.webkitBackdropFilter = 'blur(12px)';
+      nb.style.boxShadow = '0 2px 16px rgba(0,0,0,0.12)';
+      if (cm) { cm.style.background = frostedBg; cm.style.backdropFilter = 'blur(12px)'; cm.style.webkitBackdropFilter = 'blur(12px)'; }
+    } else {
+      nb.style.background = 'transparent';
+      nb.style.backdropFilter = 'none';
+      nb.style.webkitBackdropFilter = 'none';
+      nb.style.boxShadow = 'none';
+      if (cm) { cm.style.background = 'transparent'; cm.style.backdropFilter = 'none'; cm.style.webkitBackdropFilter = 'none'; }
+    }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+}
+
 // Initialize featured products, categories, and product/category page details on load
 document.addEventListener('DOMContentLoaded', function() {
   // Mobile menu is handled by the main navbar script - no separate e-commerce handler needed
   
   // Hide sub-navbars on product/checkout/order pages
   handleSubNavbarVisibility();
+
+  // Activate frosted glass scroll effect for transparent navbars
+  initTransparentNavbarScrollEffect();
 
   // Fetch store settings first (handles announcement bar, product layout, etc.)
   fetchAdditionalJsSettings();
@@ -4854,8 +5310,9 @@ function renderCategoryPage(container, category, t) {
   
   // Initialize category toolbar
   initCategoryToolbar(isRTL, t);
-  
+
   applyCategoryFiltersAndRender(productGrid, t);
+  if (typeof _syncCardFavorites === 'function') _syncCardFavorites();
 }
 
 function applyCategoryFiltersAndRender(productGrid, t) {
@@ -5542,6 +5999,76 @@ function toggleFavorite(productId) {
   }
 }
 
+function toggleCardFavorite(btn, productId) {
+  var wId = window.ZAPPY_WEBSITE_ID;
+  var tokenKey = 'zappy_customer_token_' + wId;
+  var token = localStorage.getItem(tokenKey);
+
+  if (!token) {
+    _zappyProductToast('יש להתחבר כדי לשמור מועדפים');
+    var loginUrl = '/login';
+    var currentUrl = window.location.href;
+    if (currentUrl.includes('/api/website/preview')) {
+      var isFullscreen = currentUrl.includes('preview-fullscreen');
+      var previewType = isFullscreen ? 'preview-fullscreen' : 'preview';
+      loginUrl = '/api/website/' + previewType + '/' + wId + '?page=' + encodeURIComponent('/login');
+    }
+    setTimeout(function() { window.location.href = loginUrl; }, 1200);
+    return;
+  }
+
+  var isActive = btn.classList.contains('active');
+  var apiBase = window.ZAPPY_API_BASE || '';
+
+  if (isActive) {
+    btn.classList.remove('active');
+    fetch(apiBase + '/api/ecommerce/customers/me/favorites/' + productId + '?websiteId=' + wId, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + token }
+    }).then(function(r) {
+      if (r.ok) {
+        _zappyProductToast('הוסר מהמועדפים');
+        document.querySelectorAll('.card-favorite-btn[data-product-id="' + productId + '"]').forEach(function(b) { b.classList.remove('active'); });
+        var detailBtn = document.getElementById('favorite-btn');
+        if (detailBtn) detailBtn.classList.remove('active');
+      }
+    }).catch(function() { btn.classList.add('active'); });
+  } else {
+    btn.classList.add('active');
+    fetch(apiBase + '/api/ecommerce/customers/me/favorites', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ websiteId: wId, productId: productId })
+    }).then(function(r) {
+      if (r.ok) {
+        _zappyProductToast('נוסף למועדפים');
+        document.querySelectorAll('.card-favorite-btn[data-product-id="' + productId + '"]').forEach(function(b) { b.classList.add('active'); });
+        var detailBtn = document.getElementById('favorite-btn');
+        if (detailBtn) detailBtn.classList.add('active');
+      }
+    }).catch(function() { btn.classList.remove('active'); });
+  }
+}
+
+function _syncCardFavorites() {
+  var wId = window.ZAPPY_WEBSITE_ID;
+  var tokenKey = 'zappy_customer_token_' + wId;
+  var token = localStorage.getItem(tokenKey);
+  if (!token) return;
+  var apiBase = window.ZAPPY_API_BASE || '';
+  fetch(apiBase + '/api/ecommerce/customers/me/favorites?websiteId=' + wId, {
+    headers: { 'Authorization': 'Bearer ' + token }
+  }).then(function(r) { return r.json(); })
+    .then(function(data) {
+      var favIds = (data.favorites || data || []).map(function(f) { return f.product_id || f.productId || f.id; });
+      document.querySelectorAll('.card-favorite-btn').forEach(function(btn) {
+        var pid = btn.getAttribute('data-product-id');
+        if (favIds.indexOf(pid) !== -1) btn.classList.add('active');
+        else btn.classList.remove('active');
+      });
+    }).catch(function() {});
+}
+
 function shareProduct() {
   var url = window.location.href;
   if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -6085,359 +6612,6 @@ async function loadRelatedProducts(currentProduct, t) {
   }
 }
 /* ==ZAPPY E-COMMERCE JS END== */
-
-/* Cookie Consent */
-
-// Helper function to check cookie consent
-function hasConsentFor(category) {
-  if (typeof window.CookieConsent === 'undefined') {
-    return false; // Default to no consent if cookie consent not loaded
-  }
-  
-  return window.CookieConsent.validConsent(category);
-}
-
-// Helper function to execute code only with consent
-function withConsent(category, callback) {
-  if (hasConsentFor(category)) {
-    callback();
-  } else {
-    console.log(`[WARNING] Skipping ${category} code - no user consent`);
-  }
-}
-
-// Cookie Consent Initialization
-
-(function() {
-  'use strict';
-  
-  let initAttempts = 0;
-  const maxAttempts = 50; // 5 seconds max wait
-  
-  // Wait for DOM and vanilla-cookieconsent to be ready
-  function initCookieConsent() {
-    initAttempts++;
-    
-    
-    if (typeof window.CookieConsent === 'undefined') {
-      if (initAttempts < maxAttempts) {
-        setTimeout(initCookieConsent, 100);
-      } else {
-      }
-      return;
-    }
-
-    const cc = window.CookieConsent;
-    
-    
-    // Initialize cookie consent
-    try {
-      cc.run({
-  "autoShow": true,
-  "mode": "opt-in",
-  "revision": 0,
-  "categories": {
-    "necessary": {
-      "enabled": true,
-      "readOnly": true
-    },
-    "analytics": {
-      "enabled": false,
-      "readOnly": false,
-      "autoClear": {
-        "cookies": [
-          {
-            "name": "_ga"
-          },
-          {
-            "name": "_ga_*"
-          },
-          {
-            "name": "_gid"
-          },
-          {
-            "name": "_gat"
-          }
-        ]
-      }
-    },
-    "marketing": {
-      "enabled": false,
-      "readOnly": false,
-      "autoClear": {
-        "cookies": [
-          {
-            "name": "_fbp"
-          },
-          {
-            "name": "_fbc"
-          },
-          {
-            "name": "fr"
-          }
-        ]
-      }
-    }
-  },
-  "language": {
-    "default": "he",
-    "translations": {
-      "he": {
-        "consentModal": {
-          "title": "אנחנו משתמשים בעוגיות 🍪",
-          "description": "סנטר קודש משתמש בעוגיות כדי לשפר את החוויה שלך, לנתח שימוש באתר ולסייע במאמצי השיווק שלנו.",
-          "acceptAllBtn": "אשר הכל",
-          "acceptNecessaryBtn": "רק הכרחי",
-          "showPreferencesBtn": "נהל העדפות",
-          "footer": "<a href=\"#privacy-policy\">מדיניות פרטיות</a> | <a href=\"#terms-conditions\">תנאי שימוש</a>"
-        },
-        "preferencesModal": {
-          "title": "העדפות עוגיות",
-          "acceptAllBtn": "אשר הכל",
-          "acceptNecessaryBtn": "רק הכרחי",
-          "savePreferencesBtn": "שמור העדפות",
-          "closeIconLabel": "סגור",
-          "sections": [
-            {
-              "title": "עוגיות חיוניות",
-              "description": "עוגיות אלה הכרחיות לתפקוד האתר ולא ניתן להשבית אותן.",
-              "linkedCategory": "necessary"
-            },
-            {
-              "title": "עוגיות ניתוח",
-              "description": "עוגיות אלה עוזרות לנו להבין איך המבקרים מתקשרים עם האתר שלנו.",
-              "linkedCategory": "analytics"
-            },
-            {
-              "title": "עוגיות שיווקיות",
-              "description": "עוגיות אלה משמשות להצגת פרסומות מותאמות אישית.",
-              "linkedCategory": "marketing"
-            }
-          ]
-        }
-      }
-    }
-  },
-  "guiOptions": {
-    "consentModal": {
-      "layout": "box",
-      "position": "bottom right",
-      "equalWeightButtons": true,
-      "flipButtons": false
-    },
-    "preferencesModal": {
-      "layout": "box",
-      "equalWeightButtons": true,
-      "flipButtons": false
-    }
-  }
-});
-      
-      // Google Consent Mode v2 integration
-      // Update consent state based on accepted cookie categories
-      function updateGoogleConsentMode() {
-        if (typeof gtag !== 'function') {
-          // Define gtag if not already defined (needed for consent updates)
-          window.dataLayer = window.dataLayer || [];
-          window.gtag = function(){dataLayer.push(arguments);};
-        }
-        
-        var analyticsAccepted = cc.acceptedCategory('analytics');
-        var marketingAccepted = cc.acceptedCategory('marketing');
-        
-        gtag('consent', 'update', {
-          'analytics_storage': analyticsAccepted ? 'granted' : 'denied',
-          'ad_storage': marketingAccepted ? 'granted' : 'denied',
-          'ad_user_data': marketingAccepted ? 'granted' : 'denied',
-          'ad_personalization': marketingAccepted ? 'granted' : 'denied'
-        });
-      }
-      
-      // Update consent on initial load (if user previously accepted)
-      updateGoogleConsentMode();
-      
-      // Handle consent changes via onChange callback
-      if (typeof cc.onChange === 'function') {
-        cc.onChange(function(cookie, changed_preferences) {
-          updateGoogleConsentMode();
-        });
-      }
-
-      // Note: Cookie Preferences button removed per marketing guidelines
-      // Footer should be clean and minimal - users can manage cookies via banner
-    } catch (error) {
-    }
-  }
-
-  // Initialize when DOM is ready - multiple approaches for reliability
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initCookieConsent);
-    // Backup timeout in case DOMContentLoaded doesn't fire
-    setTimeout(initCookieConsent, 1000);
-  } else if (document.readyState === 'interactive' || document.readyState === 'complete') {
-    initCookieConsent();
-  } else {
-    // Fallback - try after a short delay
-    setTimeout(initCookieConsent, 500);
-  }
-  
-  // Additional fallback - try after page load
-  if (typeof window !== 'undefined') {
-    if (window.addEventListener) {
-      window.addEventListener('load', initCookieConsent, { once: true });
-    }
-  }
-})();
-
-/* Accessibility Features */
-
-/* Mickidum Accessibility Toolbar Initialization - Zappy Style */
-
-window.onload = function() {
-    
-    try {
-        window.micAccessTool = new MicAccessTool({
-            buttonPosition: 'left', // Position on left side
-            forceLang: 'he-IL', // Force language
-            icon: {
-                position: {
-                    bottom: { size: 50, units: 'px' },
-                    left: { size: 20, units: 'px' },
-                    type: 'fixed'
-                },
-                backgroundColor: 'transparent', // Transparent to allow CSS styling
-                color: 'transparent', // Let CSS handle coloring
-                img: 'accessible',
-                circular: false // Square button for consistent styling
-            },
-            menu: {
-                dimensions: {
-                    width: { size: 300, units: 'px' },
-                    height: { size: 'auto', units: 'px' }
-                }
-            }
-        });
-        
-    } catch (error) {
-    }
-    
-    // Keyboard shortcut handler: ALT+A (Option+A on Mac) to toggle accessibility widget visibility (desktop only)
-    document.addEventListener('keydown', function(event) {
-        // Check if ALT+A is pressed (ALT on Windows/Linux, Option on Mac)
-        var isAltOrOption = event.altKey;
-        // Use event.code for reliable physical key detection (works regardless of Option key character output)
-        var isAKey = event.code === 'KeyA' || event.keyCode === 65 || event.which === 65 || 
-                      (event.key && (event.key.toLowerCase() === 'a' || event.key === 'å' || event.key === 'Å'));
-        
-        if (isAltOrOption && isAKey) {
-            // Only work on desktop (screen width > 768px)
-            if (window.innerWidth > 768) {
-                event.preventDefault();
-                event.stopPropagation();
-                
-                // Toggle visibility class on body
-                var isVisible = document.body.classList.contains('accessibility-widget-visible');
-                
-                if (isVisible) {
-                    // Hide the widget
-                    document.body.classList.remove('accessibility-widget-visible');
-                } else {
-                    // Show the widget
-                    document.body.classList.add('accessibility-widget-visible');
-                    
-                    // After a short delay, click the button to open the menu
-                    setTimeout(function() {
-                        var accessButton = document.getElementById('mic-access-tool-general-button');
-                        if (accessButton) {
-                            accessButton.click();
-                        }
-                    }, 200);
-                }
-            }
-        }
-    }, true);
-};
-
-
-// Zappy Contact Form API Integration (Fallback)
-(function() {
-    if (window.zappyContactFormLoaded) {
-        console.log('📧 Zappy contact form already loaded');
-        return;
-    }
-    window.zappyContactFormLoaded = true;
-
-    function initContactFormIntegration() {
-        console.log('📧 Zappy: Initializing contact form API integration...');
-
-        // Find the contact form (try multiple selectors for flexibility)
-        const contactForm = document.querySelector('.contact-form') || 
-                           document.querySelector('form[action*="contact"]') ||
-                           document.querySelector('form#contact') ||
-                           document.querySelector('form#contactForm') ||
-                           document.getElementById('contactForm') ||
-                           document.querySelector('section.contact form') ||
-                           document.querySelector('section#contact form') ||
-                           document.querySelector('form');
-        
-        if (!contactForm) {
-            console.log('⚠️ Zappy: No contact form found on page');
-            return;
-        }
-        
-        console.log('✅ Zappy: Contact form found:', contactForm.className || contactForm.id || 'unnamed form');
-
-        // Store original submit handler if exists
-        const originalOnSubmit = contactForm.onsubmit;
-
-    // Add Zappy API integration using capture phase to run before other handlers
-    contactForm.addEventListener('submit', async function(e) {
-        // Get form data
-        const formData = new FormData(this);
-        const data = Object.fromEntries(formData);
-
-        // Send to Zappy backend API (don't prevent default, let other handlers run)
-        try {
-            console.log('📧 Zappy: Sending contact form to backend API...');
-            const response = await fetch('https://api.zappy5.com/api/email/contact-form', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    websiteId: 'fee8bae9-93dc-47a9-bcad-fb2d86a59123',
-                    name: data.name || '',
-                    email: data.email || '',
-                    subject: data.subject || 'Contact Form Submission',
-                    message: data.message || '',
-                    phone: data.phone || null
-                })
-            });
-
-            const result = await response.json();
-            
-            if (result.success) {
-                console.log('✅ Zappy: Contact form data sent successfully to backend');
-            } else {
-                console.log('⚠️ Zappy: Backend returned error:', result.error);
-            }
-        } catch (error) {
-            console.error('❌ Zappy: Failed to send to backend API:', error);
-            // Don't break the existing form submission
-        }
-        }, true); // Use capture phase to run before other handlers
-
-        console.log('✅ Zappy: Contact form API integration initialized');
-    } // End of initContactFormIntegration
-    
-    // Initialize when DOM is ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initContactFormIntegration);
-    } else {
-        // DOM is already ready, initialize immediately
-        initContactFormIntegration();
-    }
-})();
 
 
 /* ZAPPY_PUBLISHED_LIGHTBOX_RUNTIME */
