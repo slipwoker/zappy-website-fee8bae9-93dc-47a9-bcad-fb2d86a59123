@@ -5222,6 +5222,12 @@ body.accessibility-widget-visible ._access-menu {
 
 
 
+
+
+
+
+
+
 /* ==ZAPPY V2 E-COMMERCE THEME CSS== */
 /* ═══════════════════════════════════════════════════════════════════════════ */
 /* V2 E-COMMERCE CSS - Clean V2 Variables Only                                  */
@@ -5743,12 +5749,12 @@ main.page-container.ecommerce-page,
 /* ── Form Fields ── */
 .checkout-field-label {
   display: block;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 400;
   color: var(--text-dark);
   margin-bottom: 6px;
 }
-.checkout-form-fields { display: flex; flex-direction: column; gap: 16px; }
+.checkout-form-fields { display: flex; flex-direction: column; gap: 37px; margin-top: 37px; }
 .checkout-form-fields .input-wrapper { margin-bottom: 0; }
 .checkout-accordion-panel input[type="text"],
 .checkout-accordion-panel input:not([type]),
@@ -5757,12 +5763,12 @@ main.page-container.ecommerce-page,
 .checkout-accordion-panel select {
   width: 100%;
   padding: 14px 16px;
-  border: 1px solid #f0f0f0;
+  border: 1px solid #f5f5f5;
   border-radius: 8px;
   background: #fff;
   color: var(--text-dark);
-  font-size: 15px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  font-size: 16px;
+  box-shadow: 0px 1px 2px rgba(16,24,40,0.05);
   box-sizing: border-box;
 }
 [dir="rtl"] .checkout-accordion-panel input { text-align: right; }
@@ -5811,17 +5817,17 @@ main.page-container.ecommerce-page,
 /* NOTE: Do NOT set display here - inline JS controls visibility via display:none/flex */
 .checkout-login-prompt {
   align-items: center !important;
-  gap: 8px !important;
-  margin-bottom: 16px !important;
-  padding: 12px 16px !important;
-  background: rgba(var(--primary-rgb, 255, 0, 131), 0.08) !important;
-  border-radius: 8px !important;
-  font-size: 14px !important;
-  color: rgba(0,0,0,0.6) !important;
+  gap: 4px !important;
+  font-size: 16px !important;
+  color: var(--text-dark) !important;
+  padding: 0 !important;
+  background: none !important;
+  border-radius: 0 !important;
+  margin-bottom: 0 !important;
 }
 .checkout-login-link {
-  color: var(--primary) !important;
-  font-weight: 600 !important;
+  color: #0088ff !important;
+  font-weight: 400 !important;
   text-decoration: none !important;
   transition: opacity 0.2s !important;
 }
@@ -7475,6 +7481,17 @@ html[lang="ar"] .mobile-search-panel .search-wrapper,
 
 /* Mobile-specific nav styles */
 @media (max-width: 768px) {
+  /* Mobile nav panel must have an opaque background; the refresh script doesn't
+     re-run navbarCssHelper/colorPaletteService which normally sets this.
+     When --nav-bg is transparent, we use the solid palette bg instead. */
+  .nav-menu,
+  .nav-menu.active,
+  .nav-menu.nav-menu-active,
+  #navMenu,
+  #navMenu.active {
+    background-color: var(--nav-bg, var(--bg-light));
+  }
+
   /* Ensure hamburger is visible on mobile e-commerce pages.
      Some generated navbars accidentally ship ".mobile-toggle { display:none; }" without a media query.
      Color is NOT set here — navbarLayoutFixService determines the correct color
@@ -7571,11 +7588,14 @@ html[lang="ar"] .mobile-search-panel .search-wrapper,
   /* Hide catalog menu on mobile */
   .zappy-catalog-menu { display: none !important; }
   
-  /* Left icons group (Login, Cart) - 20px margin to prevent cutoff in iframes */
+  /* Left icons group (Login, Cart) - positioned at inline-end edge of .nav-container */
   .nav-icons-left {
     order: 2 !important;
     position: absolute !important;
-    left: 20px !important;
+    left: unset !important;
+    right: unset !important;
+    inset-inline-end: 0px !important;
+    inset-inline-start: auto !important;
     top: 50% !important;
     transform: translateY(-50%) !important;
     z-index: 100 !important;
@@ -7593,17 +7613,30 @@ html[lang="ar"] .mobile-search-panel .search-wrapper,
     gap: 10px !important;
   }
   
-  /* Right icons group (Search) - positioned with proper gap from hamburger */
-  /* Hamburger is 36px wide at 12px from edge → ends at 48px; add 10px gap = 58px */
+  /* Right icons group (Search) - positioned after hamburger menu.
+     Hamburger is 36px at 12px from .navbar edge → ends at 48px from .navbar edge.
+     Use 52px from .navbar edge to guarantee clearance regardless of navbar padding.
+     Since .nav-icons-right is positioned within .nav-container, subtract any
+     nav-container offset, but 52px is safe for all known navbar padding values. */
   .nav-icons-right,
   .nav-ecommerce-icons.nav-icons-right {
     order: 3 !important;
     position: absolute !important;
-    right: 58px !important;
+    left: unset !important;
+    right: unset !important;
+    inset-inline-start: 52px !important;
+    inset-inline-end: auto !important;
     top: 50% !important;
     transform: translateY(-50%) !important;
     z-index: 100 !important;
     gap: 2px !important;
+  }
+
+  /* Logo: constrain width so it doesn't get squeezed by icon groups */
+  .logo,
+  .nav-brand img,
+  .nav-brand svg {
+    max-width: 110px !important;
   }
   
   /* Make header relative for absolute children */
@@ -7611,7 +7644,9 @@ html[lang="ar"] .mobile-search-panel .search-wrapper,
     position: relative !important;
   }
   
-  /* Mobile nav icon buttons - compact sizing for iframe compatibility */
+  /* Mobile nav icon buttons - sized to match desktop e-commerce standard (36px).
+     ALWAYS use solid bg-light background so icons are visible over any hero (dark or light).
+     Paired with text-dark color below for guaranteed contrast. */
   .cart-link,
   .nav-cart,
   .nav-search-toggle,
@@ -7620,31 +7655,36 @@ html[lang="ar"] .mobile-search-panel .search-wrapper,
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    width: 28px !important;
-    height: 28px !important;
-    min-width: 28px !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
     padding: 0 !important;
     position: relative !important;
     overflow: visible !important;
     border-radius: 9999px !important;
-    border: 1px solid var(--border-light) !important;
-    background: var(--bg-light) !important;
+    border: 1px solid rgba(128,128,128,0.2) !important;
+    background: var(--bg-light, #ffffff) !important;
   }
 
-  /* Icon color: use nav-text which is contrast-checked against nav-bg.
-     Compound selectors beat desktop rules (0-2-0 > 0-1-0). */
+  /* Icon color: always use text-dark on mobile since circles are always bg-light.
+     --nav-text may be white (for transparent navbars) which is invisible on light circles. */
   .cart-link.nav-cart,
   .login-link.nav-login,
   .nav-search-toggle {
-    color: var(--nav-text, var(--text-dark)) !important;
+    color: var(--text-dark, #1a1a1a) !important;
+  }
+  .cart-link.nav-cart svg,
+  .login-link.nav-login svg,
+  .nav-search-toggle svg {
+    stroke: var(--text-dark, #1a1a1a) !important;
   }
 
   /* Mobile nav icon hover */
   .cart-link.nav-cart:hover,
   .login-link.nav-login:hover,
   .nav-search-toggle:hover {
-    background: rgba(128,128,128,0.12) !important;
-    color: var(--nav-text, var(--text-dark)) !important;
+    background: rgba(128,128,128,0.15) !important;
+    color: var(--text-dark, #1a1a1a) !important;
   }
   
   /* Mobile nav SVG icons - consistent size */
@@ -7747,7 +7787,6 @@ html[lang="ar"] .mobile-search-panel .search-wrapper,
   }
   
   /* Desktop icon buttons: keep circular + centered (fix square icons regression) */
-  /* CRITICAL: For dark themes, use transparent background so light icons are visible */
   .navbar .nav-ecommerce-icons.nav-icons-left a.login-link.nav-login,
   .navbar .nav-ecommerce-icons.nav-icons-left a.cart-link.nav-cart {
     width: 36px !important;
@@ -7759,8 +7798,8 @@ html[lang="ar"] .mobile-search-panel .search-wrapper,
     justify-content: center !important;
     border-radius: 9999px !important;
     border: 1px solid rgba(128,128,128,0.2) !important;
-    background: rgba(128,128,128,0.06) !important;
-    color: var(--nav-text, var(--text-dark)) !important;
+    background: var(--bg-light, #ffffff) !important;
+    color: var(--text-dark, #1a1a1a) !important;
     padding: 0 !important;
     position: relative !important; /* anchor cart badge */
     box-sizing: border-box !important;
@@ -7887,6 +7926,7 @@ html[lang="ar"] .mobile-search-panel .search-wrapper,
   }
 
   /* Products menu: normalize link height so dropdown item doesn't look like “two rows” */
+  .navbar, .nav-container, .nav-menu, .nav-menu > li { overflow: visible !important; }
   .navbar .nav-menu { align-items: center !important; }
   .navbar .nav-menu > li { display: flex !important; align-items: center !important; }
   .navbar .nav-menu > li > a {
@@ -7989,52 +8029,54 @@ body.zappy-focused-page .zappy-announcement-bar {
   direction: rtl !important;
 }
 
-/* Dropdown in catalog menu */
+/* Dropdown in catalog menu - desktop only */
 .zappy-products-dropdown { position: relative; }
-.zappy-products-dropdown .sub-menu {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  min-width: 200px;
-  background: var(--nav-bg, var(--bg-light)) !important;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-  padding: 8px;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(10px);
-  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
-  z-index: 1000;
-  list-style: none;
-  margin: 0; /* Remove gap to prevent hover issues */
-  padding-top: 12px; /* Visual spacing instead of margin */
-}
-/* Bridge element to prevent submenu from disappearing on hover */
-.zappy-products-dropdown::after {
-  content: '';
-  position: absolute;
-  bottom: -10px;
-  left: 0;
-  right: 0;
-  height: 10px;
-}
-.zappy-products-dropdown:hover .sub-menu,
-.zappy-products-dropdown:focus-within .sub-menu {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-.zappy-products-dropdown .sub-menu a {
-  display: block;
-  padding: 10px 16px;
-  color: var(--nav-text, var(--text-dark));
-  text-decoration: none;
-  border-radius: 6px;
-  transition: background-color 0.2s ease;
-}
-.zappy-products-dropdown .sub-menu a:hover {
-  background: rgba(128,128,128,0.1) !important;
-  color: var(--nav-text-hover, var(--primary)) !important;
+@media (min-width: 769px) {
+  .zappy-products-dropdown .sub-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    min-width: 200px;
+    background: var(--bg-light, #ffffff) !important;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    padding: 8px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+    z-index: 100001;
+    list-style: none;
+    margin: 0;
+    padding-top: 12px;
+  }
+  /* Bridge element to prevent submenu from disappearing on hover */
+  .zappy-products-dropdown::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    right: 0;
+    height: 10px;
+  }
+  .zappy-products-dropdown:hover .sub-menu,
+  .zappy-products-dropdown:focus-within .sub-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  .zappy-products-dropdown .sub-menu a {
+    display: block;
+    padding: 10px 16px;
+    color: var(--text-dark, #1a1a1a);
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+  }
+  .zappy-products-dropdown .sub-menu a:hover {
+    background: rgba(128,128,128,0.1) !important;
+    color: var(--nav-text-hover, var(--primary)) !important;
+  }
 }
 
 /* V2 Navbar positioning for e-commerce - DO NOT include generic 'header' as it matches content headers */
@@ -8042,6 +8084,7 @@ nav#navbar,
 nav.navbar,
 .navbar:not(.zappy-catalog-menu) {
   z-index: 100000 !important;
+  overflow: visible !important;
 }
 
 /* Announcement bar should be above everything */
@@ -8193,58 +8236,62 @@ main,
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   SUBMENU VISIBILITY FIXES
+   SUBMENU VISIBILITY FIXES (desktop only)
    ───────────────────────────────────────────────────────────────────────────── */
+@media (min-width: 769px) {
+  /* Navbar submenu - always uses solid bg-light background (not nav-bg which may be transparent) */
+  .navbar .sub-menu,
+  .navbar ul.sub-menu,
+  nav.navbar .sub-menu {
+    background: var(--bg-light, #ffffff) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
+    margin: 0 !important;
+    padding-top: 12px !important;
+    z-index: 100001 !important;
+    overflow: visible !important;
+  }
+  .navbar .sub-menu li a,
+  nav.navbar .sub-menu li a {
+    color: var(--text-dark, #1a1a1a) !important;
+  }
+  .navbar .sub-menu li a:hover,
+  nav.navbar .sub-menu li a:hover {
+    background: rgba(128,128,128,0.1) !important;
+    color: var(--nav-text-hover, var(--accent, var(--primary))) !important;
+  }
 
-/* Navbar submenu - uses nav background for consistency */
-.navbar .sub-menu,
-.navbar ul.sub-menu,
-nav.navbar .sub-menu {
-  background: var(--nav-bg, var(--bg-light)) !important;
-  border-radius: 8px !important;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
-  margin: 0 !important;
-  padding-top: 12px !important;
-}
-.navbar .sub-menu li a,
-nav.navbar .sub-menu li a {
-  color: var(--nav-text, var(--text-dark)) !important;
-}
-.navbar .sub-menu li a:hover,
-nav.navbar .sub-menu li a:hover {
-  background: rgba(128,128,128,0.1) !important;
-  color: var(--nav-text-hover, var(--accent, var(--primary))) !important;
-}
+  /* Bridge element to prevent submenu from disappearing on hover */
+  .navbar .menu-item-has-children,
+  nav.navbar .menu-item-has-children,
+  .zappy-products-dropdown {
+    position: relative !important;
+    overflow: visible !important;
+  }
+  .navbar .menu-item-has-children::after,
+  nav.navbar .menu-item-has-children::after,
+  .zappy-products-dropdown::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: -10px !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 10px !important;
+  }
 
-/* Bridge element to prevent submenu from disappearing on hover */
-.navbar .menu-item-has-children,
-nav.navbar .menu-item-has-children,
-.zappy-products-dropdown {
-  position: relative !important;
-}
-.navbar .menu-item-has-children::after,
-nav.navbar .menu-item-has-children::after,
-.zappy-products-dropdown::after {
-  content: '' !important;
-  position: absolute !important;
-  bottom: -10px !important;
-  left: 0 !important;
-  right: 0 !important;
-  height: 10px !important;
-}
-
-/* Catalog dropdown submenu */
-.zappy-products-dropdown .sub-menu {
-  background: var(--nav-bg, var(--bg-light)) !important;
-  margin: 0 !important;
-  padding-top: 12px !important;
-}
-.zappy-products-dropdown .sub-menu a {
-  color: var(--nav-text, var(--text-dark)) !important;
-}
-.zappy-products-dropdown .sub-menu a:hover {
-  background: rgba(128,128,128,0.1) !important;
-  color: var(--nav-text-hover, var(--accent, var(--primary))) !important;
+  /* Catalog dropdown submenu */
+  .zappy-products-dropdown .sub-menu {
+    background: var(--bg-light, #ffffff) !important;
+    margin: 0 !important;
+    padding-top: 12px !important;
+  }
+  .zappy-products-dropdown .sub-menu a {
+    color: var(--text-dark, #1a1a1a) !important;
+  }
+  .zappy-products-dropdown .sub-menu a:hover {
+    background: rgba(128,128,128,0.1) !important;
+    color: var(--nav-text-hover, var(--accent, var(--primary))) !important;
+  }
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -8284,22 +8331,27 @@ nav.navbar .menu-item-has-children::after,
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    width: 40px !important;
-    height: 40px !important;
-    min-width: 40px !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
     padding: 0 !important;
     position: relative !important;
     overflow: visible !important;
     border-radius: 9999px !important;
-    border: 1px solid var(--border-light) !important;
-    background: var(--bg-light) !important;
+    border: 1px solid rgba(128,128,128,0.2) !important;
+    background: var(--bg-light, #ffffff) !important;
   }
 
-  /* Icon color: use nav-text for consistency with navbar theme */
+  /* Icon color: always use text-dark on mobile since circles are always bg-light. */
   .cart-link.nav-cart,
   .login-link.nav-login,
   .nav-search-toggle {
-    color: var(--nav-text, var(--text-dark)) !important;
+    color: var(--text-dark, #1a1a1a) !important;
+  }
+  .cart-link.nav-cart svg,
+  .login-link.nav-login svg,
+  .nav-search-toggle svg {
+    stroke: var(--text-dark, #1a1a1a) !important;
   }
   
   .cart-link svg,
@@ -8331,12 +8383,107 @@ nav.navbar .menu-item-has-children::after,
     background: var(--accent, #FF2DAA) !important;
     color: #fff !important;
   }
+
+  /* Disable hover-triggered sub-menus on mobile — only toggle via click */
+  .navbar .zappy-products-dropdown:hover > .sub-menu,
+  .navbar .zappy-products-dropdown:focus-within > .sub-menu,
+  .navbar .menu-item-has-children:hover > .sub-menu,
+  .zappy-products-dropdown:hover > .sub-menu,
+  .zappy-products-dropdown:focus-within > .sub-menu {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    max-height: 0 !important;
+  }
+  /* Re-enable when explicitly expanded via toggle click */
+  .navbar .zappy-products-dropdown .sub-menu.mobile-expanded,
+  .navbar .zappy-products-dropdown > .sub-menu.mobile-expanded,
+  .zappy-products-dropdown .sub-menu.mobile-expanded,
+  .navbar .menu-item-has-children > .sub-menu.mobile-expanded {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    max-height: 500px !important;
+  }
+
+  /* Mobile sub-menu: displayed inline inside dark nav panel, NOT as a floating dropdown.
+     Override the desktop rules that force bg-light + text-dark on sub-menus. */
+  .navbar .sub-menu,
+  .navbar ul.sub-menu,
+  nav.navbar .sub-menu,
+  .zappy-products-dropdown .sub-menu {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    transform: none !important;
+    transition: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    z-index: auto !important;
+  }
+  .navbar .sub-menu li a,
+  nav.navbar .sub-menu li a,
+  .zappy-products-dropdown .sub-menu a {
+    color: var(--nav-text, var(--text-dark)) !important;
+    padding: 10px 16px !important;
+    border-radius: 0 !important;
+  }
+  .navbar .sub-menu li a:hover,
+  nav.navbar .sub-menu li a:hover,
+  .zappy-products-dropdown .sub-menu a:hover {
+    background: transparent !important;
+    color: var(--nav-text, var(--text-dark)) !important;
+  }
+
+  /* Mobile submenu toggle arrow: flex child that stretches to match the nav-link height
+     via align-self:stretch, so the arrow centers automatically via align-items:center. */
+  .navbar .nav-menu .mobile-submenu-toggle,
+  .navbar .mobile-submenu-toggle,
+  .mobile-submenu-toggle {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 44px !important;
+    height: auto !important;
+    position: static !important;
+    flex-shrink: 0 !important;
+    align-self: stretch !important;
+    background: transparent !important;
+    border: none !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    z-index: 2 !important;
+    color: var(--nav-text, var(--text-dark)) !important;
+  }
+  .mobile-submenu-toggle::after {
+    content: '' !important;
+    display: block !important;
+    width: 0 !important;
+    height: 0 !important;
+    border-left: 6px solid transparent !important;
+    border-right: 6px solid transparent !important;
+    border-top: 7px solid currentColor !important;
+    transition: transform 0.3s ease !important;
+  }
+  .mobile-submenu-toggle.expanded::after {
+    transform: rotate(180deg) !important;
+  }
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
    HOMEPAGE: FEATURED SECTIONS (PRODUCTS + CATEGORIES)
    These used to be styled by V1 base CSS; must live in V2 generateCss()
-   Background uses hero-divider-aware theme: --bg-light (LIGHT)
+   Background uses hero-divider-aware theme: var(--bg-light) (LIGHT)
    ───────────────────────────────────────────────────────────────────────────── */
 
 /* Featured Products Section (Home Page) */
@@ -8475,51 +8622,69 @@ nav.navbar .menu-item-has-children::after,
 #shipping-methods { 
   display: flex !important; 
   flex-direction: column !important; 
-  gap: 12px !important; 
+  gap: 37px !important; 
+}
+.shipping-method-block {
+  display: flex !important;
+  flex-direction: column !important;
 }
 .shipping-option { 
   display: flex !important; 
   align-items: flex-start !important; 
-  gap: 12px !important; 
-  padding: 16px !important; 
-  border: 2px solid var(--border-light) !important; 
-  border-radius: 12px !important; 
+  gap: 24px !important; 
+  padding: 0 !important; 
+  border: none !important; 
+  border-radius: 0 !important; 
   cursor: pointer !important; 
-  transition: all 0.2s !important; 
-  background: var(--bg-light) !important; 
+  transition: none !important; 
+  background: transparent !important; 
 }
 .shipping-option:hover { 
-  border-color: rgba(0,0,0,0.2) !important; 
-  background: var(--bg-light) !important; 
+  background: transparent !important; 
 }
 .shipping-option.selected { 
-  border-color: var(--primary) !important; 
-  background: rgba(var(--primary-rgb, 255, 0, 131), 0.05) !important; 
+  background: transparent !important; 
 }
 .shipping-option input[type="radio"] { 
-  width: 18px !important; 
-  height: 18px !important; 
+  width: 20px !important; 
+  height: 20px !important; 
   margin-top: 2px !important; 
   accent-color: var(--primary) !important; 
   cursor: pointer !important; 
   flex-shrink: 0 !important;
 }
 .shipping-info { 
-  flex: 1 !important; 
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+.shipping-name-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
 }
 .shipping-name { 
   font-weight: 600 !important; 
   color: var(--text-dark) !important; 
-  font-size: 15px !important; 
+  font-size: 20px !important; 
+}
+.shipping-icon {
+  width: 20px !important;
+  height: 20px !important;
+  flex-shrink: 0 !important;
+  color: var(--text-dark) !important;
+}
+.shipping-option.selected .shipping-icon {
+  color: var(--text-dark) !important;
 }
 .shipping-desc { 
   color: rgba(0,0,0,0.6) !important; 
-  font-size: 13px !important; 
-  margin-top: 4px !important; 
+  font-size: 16px !important; 
+  margin-top: 8px !important;
+  line-height: 1.4 !important;
 }
 .shipping-address { 
   color: var(--primary) !important; 
-  font-size: 12px !important; 
+  font-size: 14px !important; 
   margin-top: 6px !important; 
   font-weight: 500 !important; 
 }
@@ -8528,15 +8693,16 @@ nav.navbar .menu-item-has-children::after,
 }
 .shipping-free-note { 
   color: #10b981 !important; 
-  font-size: 12px !important; 
+  font-size: 14px !important; 
   margin-top: 4px !important; 
   font-weight: 500 !important; 
 }
 .shipping-price { 
-  font-weight: 700 !important; 
-  font-size: 16px !important; 
+  font-weight: 600 !important; 
+  font-size: 20px !important; 
   color: var(--text-dark) !important; 
-  white-space: nowrap !important; 
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
 }
 .shipping-price.free { 
   color: #10b981 !important; 
@@ -8546,57 +8712,95 @@ nav.navbar .menu-item-has-children::after,
   padding: 20px !important; 
   color: rgba(0,0,0,0.6) !important; 
   background: var(--bg-light) !important; 
-  border-radius: 8px !important; 
+  border-radius: 8px !important;
+}
+/* Checkout form rows and selects - V2 */
+.checkout-form-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+}
+@media (max-width: 480px) { .checkout-form-row { grid-template-columns: 1fr !important; } }
+.input-full { width: 100% !important; }
+.checkout-select-wrapper { position: relative !important; }
+.checkout-select {
+  width: 100% !important;
+  padding: 12px 40px 12px 16px !important;
+  border: 1px solid var(--border-light) !important;
+  border-radius: 8px !important;
+  background: var(--bg-light) !important;
+  color: var(--text-dark) !important;
+  font-size: 16px !important;
+  font-family: inherit !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  cursor: pointer !important;
+  box-shadow: 0px 1px 2px rgba(16,24,40,0.05) !important;
+}
+.checkout-select:focus {
+  outline: none !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 2px rgba(var(--primary-rgb, 255, 0, 131), 0.2) !important;
+}
+.checkout-select-chevron {
+  position: absolute !important;
+  right: 12px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  pointer-events: none !important;
+  color: rgba(0,0,0,0.4) !important; 
 }
 
 /* Payment Methods - V2 theme */
 #payment-container { 
   display: flex !important; 
   flex-direction: column !important; 
-  gap: 12px !important; 
+  gap: 37px !important; 
 }
 .payment-option { 
   display: flex !important; 
   align-items: center !important; 
-  gap: 12px !important; 
-  padding: 16px !important; 
-  border: 2px solid var(--border-light) !important; 
-  border-radius: 12px !important; 
+  gap: 24px !important; 
+  padding: 0 !important; 
+  border: none !important; 
+  border-radius: 0 !important; 
   cursor: pointer !important; 
-  transition: all 0.2s !important; 
-  background: var(--bg-light) !important; 
+  transition: none !important; 
+  background: transparent !important; 
 }
 .payment-option:hover { 
-  border-color: rgba(0,0,0,0.2) !important; 
-  background: var(--bg-light) !important; 
+  background: transparent !important; 
 }
 .payment-option.selected { 
-  border-color: var(--primary) !important; 
-  background: rgba(var(--primary-rgb, 255, 0, 131), 0.05) !important; 
+  background: transparent !important; 
 }
 .payment-option input[type="radio"] { 
-  width: 18px !important; 
-  height: 18px !important; 
+  width: 20px !important; 
+  height: 20px !important; 
   accent-color: var(--primary) !important; 
   cursor: pointer !important; 
   flex-shrink: 0 !important;
 }
-.payment-info { 
-  display: flex !important; 
-  align-items: center !important; 
-  gap: 12px !important; 
-  flex: 1 !important; 
-}
-.payment-icon { 
-  color: var(--text-dark) !important; 
-}
-.payment-icon svg { 
-  display: block !important; 
-}
 .payment-name { 
   font-weight: 600 !important; 
   color: var(--text-dark) !important; 
-  font-size: 15px !important; 
+  font-size: 20px !important; 
+  flex: 1 !important;
+}
+.payment-icon { 
+  color: var(--text-dark) !important; 
+  flex-shrink: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+.payment-icon svg { 
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+}
+.payment-icon img {
+  height: 24px !important;
+  width: auto !important;
 }
 .payment-not-configured { 
   display: flex !important; 
